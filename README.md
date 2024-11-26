@@ -128,9 +128,31 @@ poetry shell
 - 选择onFocusChange
 
 
-# 介绍
+# Labs
 
 ## Lab 1
 
-学习在AI辅助编程的前提下，快速上手一个ML项目。
+学习在AI辅助编程的前提下，快速上手一个ML项目。可以在本地完成，也可以使用Google Colab。使用Google Colab时，需要解压data/loan_data.zip为csv文件并上传
 
+Ask LLM for help
+
+- Question 1: 如何使得EDA中的scatter plot 不要挤在X轴的左侧
+- Question 2: 如何理解结果汇报中数据，什么是F1 score，什么是ROC curve？什么是AUC。F1 score和AUC的区别是什么？
+
+
+## Lab 2
+
+
+
+
+## Lab 3
+
+
+## Lab 4
+
+
+## Lab 5
+
+## Lab 6
+
+## Lab 7

@@ -155,4 +155,4 @@ dmypy.json
 cython_debug/
 
 .DS_Store
-data/load_data.csv
+data/loan_data.csv

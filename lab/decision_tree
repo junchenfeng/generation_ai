@@ -1,0 +1,21 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label=<previous_loan_defaults_on_file_Yes credit_score &le; -0.005<br/>gini = 0.494<br/>samples = 1014<br/>value = [884, 716]<br/>class = 0>, fillcolor="#fae7d9"] ;
+1 [label=<gini = 0.0<br/>samples = 197<br/>value = [305, 0]<br/>class = 0>, fillcolor="#e58139"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label=<previous_loan_defaults_on_file_Yes loan_int_rate &le; -0.007<br/>gini = 0.494<br/>samples = 817<br/>value = [579, 716]<br/>class = 1>, fillcolor="#d9ecfa"] ;
+0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+3 [label=<gini = 0.0<br/>samples = 114<br/>value = [186, 0]<br/>class = 0>, fillcolor="#e58139"] ;
+2 -> 3 ;
+4 [label=<previous_loan_defaults_on_file_Yes credit_score &le; 0.005<br/>gini = 0.458<br/>samples = 703<br/>value = [393, 716]<br/>class = 1>, fillcolor="#a6d3f3"] ;
+2 -> 4 ;
+5 [label=<person_home_ownership_RENT loan_amnt &le; 0.319<br/>gini = 0.405<br/>samples = 626<br/>value = [282, 716]<br/>class = 1>, fillcolor="#87c4ef"] ;
+4 -> 5 ;
+6 [label="(...)", fillcolor="#C0C0C0"] ;
+5 -> 6 ;
+153 [label="(...)", fillcolor="#C0C0C0"] ;
+5 -> 153 ;
+198 [label=<gini = 0.0<br/>samples = 77<br/>value = [111, 0]<br/>class = 0>, fillcolor="#e58139"] ;
+4 -> 198 ;
+}

@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "your first api service"
+version = "0.1.0"
+description = ""
+authors = ["Drjunchenfeng <fengjunchen@sparkedu.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.1.0"
+openai = "^1.70.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

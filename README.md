@@ -1,7 +1,8 @@
-# 公欲善其事，必先利其器
+# 通过命令行安装开发环境
+
+我们统一使用Python 3.11 + Poetry + Cursor(>0.47)版本作为上课的开发环境
 
 ## 1. Python
-
 ### 1.1 安装Python
 #### Windows系统
 
@@ -127,32 +128,44 @@ poetry shell
 - Cursor->首选项(Preferences)->设置(Settings)->文件编辑器(Editor)->文件（Files）->自动保存(Auto Save)。
 - 选择onFocusChange
 
+# 先修要求：Python工程能力
 
-# Labs
+我们在学习/开发Agent过程中一定会遇到API服务开发。坏消息是，因为API服务属于“基础”工程能力，绝大部分算法课程和CS课程都不会进行系统教学。好消息是，因为API服务属于最常见的代码，因此AI写的非常好。所以，你需要能够在Cursor辅助下完成一个API服务。
 
-## Lab 1
+**项目内容**：利用Flask搭建一个DeepSeek（V3）的锐评工具
 
-学习在AI辅助编程的前提下，快速上手一个ML项目。可以在本地完成，也可以使用Google Colab。使用Google Colab时，需要解压data/loan_data.zip为csv文件并上传
-
-Ask LLM for help
-
-- Question 1: 如何使得EDA中的scatter plot 不要挤在X轴的左侧
-- Question 2: 如何理解结果汇报中数据，什么是F1 score，什么是ROC curve？什么是AUC。F1 score和AUC的区别是什么？
+**项目目标**：
+- 理解并掌握如何利用OpenAI的SDK进行chat开发
+- 理解并掌握如何搭建Flask的后端服务
 
 
-## Lab 2
+你要做的事情：
 
+- （1）创建一个新的文件夹，并且将`tutorial/Your First API Service`中的`pyproject.toml`和`poetry.lock`下载到工作文件夹，并进行`poetry install`
+。
+- （2）在Agent模式下Cursor对话框中输入如下内容，并点击"Send"
+```
+使用flask创建一个API服务“锐评生成器”。放在`server.py`
 
+1. GET请求服务端点为/chat，输入参数为"item"，格式为string；port在8001.
+2. 拼接如下prompt：f'please make a scathing review for {item}'，并使用openai的sdk中的chat completion生成该prompt的response，并将之返回为`{'review':strng, 'status':status_code}`。
+3. 在创建OpenAI的实例时，base url使用https://api.deepseek.com，model使用"deepseek-chat"，api key留为待填入变量
+```
 
+你应该能看到一个`server.py`的文件。填入deepseek API（你可以在[官网](https://platform.deepseek.com/)注册获得免费额度）。
 
-## Lab 3
+- （3）让Cursor帮你运行server.py，然后在浏览器中输入"http://localhost:8001/chat?item=LLM"，如果一切正常，你会在5秒后看到V3的锐评
 
+- （4）如果你没有看到返回的结果，将命令行报错或者网页报错输入到Agent对话框下，让它帮你debug
 
-## Lab 4
+# Archive(历史信息)
 
+## 2024 Fall Machine Learning track
+24 GenerationAI Machine Learning Track的讲课稿，覆盖了Parameter Tuning，Ensemble Classifer， CNN和RNN。
 
-## Lab 5
+# Tutorial
+## Design Algo with Cursor
+Coursera Programming With AI课程的最终大作业的简易版，展示了如何与Cursor一起进行代码设计
 
-## Lab 6
-
-## Lab 7
+## Academic Writing
+24年如何进行学术论文写作的演讲稿

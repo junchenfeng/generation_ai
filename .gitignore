@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+genAI2025/*.joblib
+genAI2025/pilot/*
+gen
+
 # C extensions
 *.so
 

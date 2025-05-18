@@ -2,6 +2,12 @@ import unittest
 from graph import Graph_Advanced
 import pickle
 import time
+import os # Add os import
+
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+medium_graph_path = os.path.join(script_dir, "medium_graph_300.pickle")
+large_graph_path = os.path.join(script_dir, "large_graph_1000.pickle")
 
 class TestGraphAdvanced(unittest.TestCase):
     def setUp(self):
@@ -37,9 +43,9 @@ class TestGraphAdvanced(unittest.TestCase):
         for src, dest, weight in edges:
             self.small_graph.add_edge(src, dest, weight)
 
-        with open("medium_graph_300.pickle", "rb") as f:
+        with open(medium_graph_path, "rb") as f: # Use the new path
             self.medium_graph = pickle.load(f)
-        with open("large_graph_1000.pickle", "rb") as f:
+        with open(large_graph_path, "rb") as f: # Use the new path
             self.large_graph = pickle.load(f)      
               
     def test_shortest_path(self):

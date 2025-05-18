@@ -193,76 +193,9 @@ class Graph_Advanced(Graph):
         返回：
         - 一个包含总距离和路径顶点列表的元组。
         """
-        # 使用Held-Karp算法求解TSP
-        n = len(self.graph)
-        # 创建所有可能的子集
-        all_sets = []
-        for i in range(1, n):
-            all_sets.append(i)
-            
-        # 初始化dp表
-        # dp[(S, i)] 表示从start_vertex出发,经过集合S中的顶点,最后到达i的最短路径长度
-        dp = {}
-        parent = {}
+        # 代码写这里
         
-        # 初始化基本情况:从起点到其他点的直接距离
-        for i in range(n):
-            dp[((1 << i), i)] = self.graph[start_vertex][i]
-            parent[((1 << i), i)] = start_vertex
-                
-        # 对所有可能的子集大小进行遍历
-        for size in range(2, n):
-            # 生成所有大小为size的子集
-            for subset in combinations(all_sets, size):
-                # 将子集转换为二进制表示
-                bits = 0
-                for bit in subset:
-                    bits |= 1 << bit
-                    
-                # 对子集中的每个可能的最后一个顶点
-                for last in subset:
-                    prev = bits & ~(1 << last)
-                    min_dist = float('infinity')
-                    min_prev = None
-                    
-                    # 尝试所有可能的倒数第二个顶点
-                    for j in subset:
-                        if j == last:
-                            continue
-                        curr_dist = dp[(prev, j)] + self.graph[j][last]
-                        if curr_dist < min_dist:
-                            min_dist = curr_dist
-                            min_prev = j
-                            
-                    dp[(bits, last)] = min_dist
-                    parent[(bits, last)] = min_prev
-        
-        # 计算最后一步:从最后一个顶点返回起点
-        bits = (1 << n) - 1 - (1 << start_vertex)
-        min_dist = float('infinity')
-        last = None
-        for i in range(n):
-            if i != start_vertex:
-                curr_dist = dp[(bits, i)] + self.graph[i][start_vertex]
-                if curr_dist < min_dist:
-                    min_dist = curr_dist
-                    last = i
-        
-        # 重建路径
-        path = []
-        curr = last
-        bits = (1 << n) - 1 - (1 << start_vertex)
-        while curr is not None:
-            path.append(curr)
-            temp = bits
-            curr = parent.get((bits, curr))
-            if curr is not None:
-                bits = bits & ~(1 << path[-1])
-        
-        path.reverse()
-        path.append(start_vertex)  # 添加返回起点
-        
-        return min_dist, path
+        return 0, []
 
 
     def tsp_large_graph(self, start) -> tuple[float, list]: 

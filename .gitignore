@@ -5,7 +5,7 @@ __pycache__/
 
 genAI2025/*.joblib
 genAI2025/pilot/*
-gen
+.cursor/*
 
 # C extensions
 *.so

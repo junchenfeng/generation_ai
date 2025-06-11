@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+agent_tutorial/o1_demo.ipynb
+
 
 genAI2025/*.joblib
 genAI2025/pilot/*

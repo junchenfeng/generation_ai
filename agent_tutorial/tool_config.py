@@ -7,12 +7,12 @@ email_tool_config = {
         "properties": {
             "recipient": {"type": "string"},
             "subject": {"type": "string"},
-            "body": {"type": "string"}
+            "body": {"type": "string"},
         },
         "required": ["recipient", "subject", "body"],
-        "additionalProperties": False
+        "additionalProperties": False,
     },
-    "strict": True
+    "strict": True,
 }
 
 weather_tool_config = {
@@ -21,15 +21,12 @@ weather_tool_config = {
     "description": "Get current temperature for provided coordinates in celsius.",
     "parameters": {
         "type": "object",
-        "properties": {
-            "latitude": {"type": "number"},
-            "longitude": {"type": "number"}
-        },
+        "properties": {"latitude": {"type": "number"}, "longitude": {"type": "number"}},
         "required": ["latitude", "longitude"],
-        "additionalProperties": False
+        "additionalProperties": False,
     },
-    "strict": True
+    "strict": True,
 }
 
 # 全局常数通常使用大写表示
-TOOL_CONFIG = [email_tool_config, weather_tool_config] 
+TOOL_CONFIG = [email_tool_config, weather_tool_config]

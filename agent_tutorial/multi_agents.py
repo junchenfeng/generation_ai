@@ -1,4 +1,9 @@
 """
+Multi-Agent DEMO
+"""
+
+
+"""
 环境设置
 """
 import json
@@ -52,9 +57,7 @@ def plan_agent(task: str, memory) -> tuple[bool, str, list]:
 你可以得到action agent的帮助。action agent具备以下能力:
 {action_agent_tools_desc()}
 
-你得到的第一个输入是任务，后续输入为任务执行状态。请根据任务历史信息，为action agent制定执行计划来完成这一任务。
-
-如果任务成功或者任务失败，都返回is_done为True；如果成功，plan为空；如果失败，plan为失败原因。
+[请你来编写提示词]
 
 请以json输出返回内容
 {{'is_done': bool, 'plan': str}}
@@ -70,12 +73,12 @@ def plan_agent(task: str, memory) -> tuple[bool, str, list]:
         input=[
             {"role": "system", "content": planner_system_prompt},
             {"role": "user", "content": task_prompt},
-        ],  # 传入历史信息
+        ],  # 注意在我这里的设计里，plan agent永远只有一轮对话
     )
 
-    # 增加记忆
+    # 构建Agent记忆
     memory.append({"role": "user", "content": task_prompt})
-    memory.append({"role": "assistant", "content": resp.output_text})  # 将执行计划也增加到历史对话中
+    memory.append({"role": "assistant", "content": resp.output_text}) 
 
     # 处理输出结果
     plan = json.loads(resp.output_text)

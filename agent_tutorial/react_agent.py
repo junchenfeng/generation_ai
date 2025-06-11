@@ -7,8 +7,6 @@ ReAct Single Agent DEMO
 环境设置
 """
 import json
-from typing import Any
-from dotenv import load_dotenv
 from openai import OpenAI
 
 # 工程化代码中一般不用print，使用logging
@@ -30,7 +28,7 @@ client = OpenAI()
 """
 
 
-def handle_function_call(step) -> Any | str:
+def handle_function_call(step):
     """处理function call类型的response"""
     # 获取函数名和参数
     function_name = step.name
@@ -78,8 +76,8 @@ def process_response(response, messages):
     return should_continue
 
 
-def agent_main(task: str):
-    """主函数：处理任意步长的任务"""
+def agent_runner(task):
+    """运行Agent"""
     messages = [{"role": "user", "content": task}]
 
     max_iterations = 10  # 防止无限循环
@@ -109,4 +107,4 @@ def agent_main(task: str):
 
 if __name__ == "__main__":
     # NOTE： 这下面的代码在包引用时不会调用，但是在命令行直接执行时会调用。这是进行调试的常用方法
-    agent_main(task="查下北京的天气，然后给foo@bar.com发一封邮件告知内容")
+    agent_runner(task="查下北京的天气，然后给foo@bar.com发一封邮件告知内容")

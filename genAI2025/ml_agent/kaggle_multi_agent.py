@@ -108,7 +108,7 @@ class CodeAgent:
         else:
             return resp.strip()
 
-    def _generate_feature_engineering_code(self, plan: Dict[str, Any], context: Dict[str, Any]) -> str:
+    def _generate_feature_engineering_code(self, plan:str, context: Dict[str, Any]) -> str:
         """为特征工程阶段生成代码"""
         prompt = f"""
         基于以下计划为特征工程(Feature Engineering)阶段生成Python代码：
@@ -143,7 +143,7 @@ class CodeAgent:
         else:
             return resp.strip()
 
-    def _generate_model_building_code(self, plan: Dict[str, Any], context: Dict[str, Any]) -> str:
+    def _generate_model_building_code(self, plan: str, context: Dict[str, Any]) -> str:
         """为模型构建阶段生成代码"""
         prompt = f"""
         基于以下计划为模型构建(Model Building)阶段生成Python代码：
@@ -164,11 +164,7 @@ class CodeAgent:
         2. 包含必要的导入语句
         3. 添加详细注释说明
         4. 处理可能的异常情况
-        5. 确保代码质量和性能
         6. 不要使用matplotlib或者seaborn生成任何图表
-        7. 专注于模型训练、验证和评估
-        8. 实现交叉验证和超参数调优
-        9. 生成最终的预测结果和提交文件
         
         # 输出结果
         只返回python代码
@@ -180,60 +176,6 @@ class CodeAgent:
         else:
             return resp.strip()
 
-    def review_and_refine(self, code: str, result: ExecutionResult, phase: Phase) -> tuple[str, bool]:
-        """审查和优化代码"""
-        prompt = f"""
-        请审查以下{phase.value}阶段的Python代码并进行优化：
-        
-        #原始代码:
-        ```python
-        {code}
-        ```
-        
-        #执行结果:
-        成功: {result.success}
-        输出: {result.output}
-        错误: {result.error}
-        
-        # 要求：
-        1. 分析错误原因并修复
-        2. 优化代码性能和可读性
-        3. 确保代码的健壮性
-        4. 保持代码的完整性和可执行性
-        5. 不要使用matplotlib或者seaborn生成任何图表
-        
-        请返回：
-        1. 优化后的完整Python代码
-        2. 是否为最终版本（True/False）
-        
-        # 输出格式:
-        OPTIMIZED_CODE:
-        ```python
-        [优化后的代码]
-        ```
-        
-        IS_FINAL: [True/False]
-        """
-        
-        resp = self._call_llm(prompt)
-        
-        # 解析响应
-        if 'OPTIMIZED_CODE:' in resp and 'IS_FINAL:' in resp:
-            code_part = resp.split('OPTIMIZED_CODE:')[1].split('IS_FINAL:')[0]
-            is_final_part = resp.split('IS_FINAL:')[1].strip()
-            
-            if '```python' in code_part:
-                optimized_code = code_part.split('```python')[1].split('```')[0].strip()
-            else:
-                optimized_code = code_part.strip()
-            
-            is_final = 'True' in is_final_part
-            
-            return optimized_code, is_final
-        else:
-            # 如果解析失败，返回原代码和False
-            return code, False
-    
     def _call_llm(self, prompt: str) -> str:
         """调用大语言模型"""
         try:
@@ -354,6 +296,10 @@ class PlanAgent:
         return f"""
         生成模型构建和验证计划：
         {json.dumps(context, indent=2)}
+
+        你可以使用random forest
+        cross validation使用3折
+        调用前一个步骤feature_engineering的pipeline.pkl进行特征工程
         
         # 输出格式是
         ## 模型选择策略
@@ -634,10 +580,15 @@ class KaggleMultiAgent:
                     
             print(f"    📝 计划生成完成")
             
-            # 2. 生成代码，代码不缓存
-            code: str = self.code_agent.generate_code(phase, plan, self.context)
-            with open(code_cache_path, 'w', encoding='utf-8') as f:
-                f.write(code)
+            # 2. 生成代码
+            if not os.path.exists(code_cache_path):
+                code: str = self.code_agent.generate_code(phase, plan, self.context)
+                with open(code_cache_path, 'w', encoding='utf-8') as f:
+                    f.write(code)
+            else:
+                with open(code_cache_path, 'r', encoding='utf-8') as f:
+                    code = f.read()
+                    
             print(f"    💻 代码生成完成")
             
             # 3. 执行代码 - 使用文件执行方式

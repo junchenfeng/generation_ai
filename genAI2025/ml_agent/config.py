@@ -3,7 +3,7 @@
 """
 
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 class Config:
     """配置类"""
@@ -32,20 +32,6 @@ class Config:
     # 单元测试配置
     ENABLE_UNIT_TESTS = True
     STRICT_TEST_MODE = False  # 是否严格要求所有测试通过
-    
-    # 工具库配置
-    ML_TOOLS_CONFIG = {
-        "feature_engineering": {
-            "create_polynomial_features": False,
-            "enable_feature_selection": True,
-            "scaling_method": "standard"
-        },
-        "model_building": {
-            "models": ["xgboost", "random_forest", "logistic_regression"],
-            "cross_validation_folds": 3,
-            "enable_hyperparameter_tuning": True
-        }
-    }
     
     @classmethod
     def validate(cls) -> Dict[str, Any]:

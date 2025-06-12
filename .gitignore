@@ -8,6 +8,7 @@ agent_tutorial/o1_demo.ipynb
 genAI2025/*.joblib
 genAI2025/pilot/*
 .cursor/*
+genAI2025/ml_agent/output/*
 
 # C extensions
 *.so

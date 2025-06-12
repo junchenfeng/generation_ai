@@ -8,6 +8,14 @@
             "name": "Python 调试程序: 当前文件",
             "type": "debugpy",
             "request": "launch",
+            "program": "${file}",
+            "cwd": "${workspaceFolder}/genAI2025",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "调试ML Agent",
+            "type": "debugpy",
+            "request": "launch",
             "program": "ml_agent/run_example.py",
             "cwd": "${workspaceFolder}/genAI2025",
             "console": "integratedTerminal"

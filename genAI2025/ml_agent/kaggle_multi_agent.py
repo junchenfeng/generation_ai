@@ -48,6 +48,20 @@ class CodeAgent:
         self.model = model
         self.conversation_history = []
 
+    def review_and_refine(self, code: str, code_output: str) -> str:
+        """review and refine the code"""
+        prompt = f"""
+        你是一个Python开发专家，请根据以下代码和执行结果，进行代码修复：
+        # 代码:
+        {code}
+        # 执行结果:
+        {code_output}
+
+        请直接输出完整代码，不要输出任何解释。
+        
+        """
+        return self._call_llm(prompt)
+
     def generate_code(self, phase: Phase, plan: str, context: Dict[str, Any]) -> str:
         """基于计划生成Python代码 - 使用分阶段的prompt"""
 
@@ -62,11 +76,10 @@ class CodeAgent:
         }
         
         # 创建可序列化的上下文副本
-        serializable_context = self._make_serializable_context(context)
         
         code_generator = phase_code_generators.get(phase)
         if code_generator:
-            return code_generator(plan, serializable_context)
+            return code_generator(plan, context)
         else:
             return "pass"  # 未知阶段返回空代码
 
@@ -131,7 +144,7 @@ class CodeAgent:
         4. 处理可能的异常情况
         5. 确保代码质量和性能
         6. 不要使用matplotlib或者seaborn生成任何图表
-        7. 使用pipeline来进行特征工程，并输出以pickle进行缓存
+        7. 将处理过的train/test数据保存为feature_train.csv和feature_test.csv
         
         # 输出结果
         只返回python代码
@@ -156,15 +169,14 @@ class CodeAgent:
         
         # 要求：
         1. 生成完整可执行的3.11 Python代码，除了python原生package外，python package是
-            - pandas
-            - numpy
-            - scikit-learn
-            - xgboost
-            - tensorflow
+            - pandas ==2.2.3
+            - numpy ==2.1.3
+            - scikit-learn == 1.6.1
+            - xgboost == 3.0.0
         2. 包含必要的导入语句
         3. 添加详细注释说明
         4. 处理可能的异常情况
-        6. 不要使用matplotlib或者seaborn生成任何图表
+        5. 并行计算度最大到4核， cross validation使用3折
         
         # 输出结果
         只返回python代码
@@ -191,28 +203,6 @@ class CodeAgent:
         except Exception as e:
             return f"LLM调用失败: {str(e)}"
 
-    def _make_serializable_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """创建可JSON序列化的上下文副本"""
-        serializable_context = {}
-        
-        for key, value in context.items():
-            try:
-                # 尝试序列化测试
-                json.dumps(value)
-                serializable_context[key] = value
-            except (TypeError, ValueError):
-                # 如果不能序列化，使用字符串表示或跳过
-                if hasattr(value, '__name__'):
-                    # 模块或函数类型
-                    serializable_context[key] = f"<{type(value).__name__}: {getattr(value, '__name__', str(value))}>"
-                elif hasattr(value, 'shape'):
-                    # 可能是numpy数组或pandas DataFrame
-                    serializable_context[key] = f"<{type(value).__name__}: shape={getattr(value, 'shape', 'unknown')}>"
-                else:
-                    # 其他类型，使用简单的字符串表示
-                    serializable_context[key] = f"<{type(value).__name__}: {str(value)[:100]}...>"
-        
-        return serializable_context
 
 class PlanAgent:
     """计划代理 - 负责分析问题、制定策略、生成代码方案"""
@@ -233,8 +223,7 @@ class PlanAgent:
         }
         
         # 创建可序列化的上下文副本
-        serializable_context = self._make_serializable_context(context)
-        prompt = phase_prompts[phase](serializable_context)
+        prompt = phase_prompts[phase](context)
         return self._call_llm(prompt)
     
     def _call_llm(self, prompt: str) -> str:
@@ -285,6 +274,10 @@ class PlanAgent:
         return f"""
         基于EDA结果生成特征工程计划：
         {json.dumps(context, indent=2)}
+
+        # 要求
+        - string类字段都需要进行one-hot编码
+        - 不要创建polynomial特征
         
         # 输出格式是
         ## 新特征创建策略
@@ -297,39 +290,16 @@ class PlanAgent:
         生成模型构建和验证计划：
         {json.dumps(context, indent=2)}
 
-        你可以使用random forest
-        cross validation使用3折
-        调用前一个步骤feature_engineering的pipeline.pkl进行特征工程
+        # 要求：
+        - 请使用random forest来构建分类器
+        - 使用feature_train.csv和feature_test.csv进行模型训练和预测，不要使用原始的train/test数据
         
         # 输出格式是
         ## 模型选择策略
         ## 验证策略
         ## 超参数调优方法
-        ## 集成方法
         """
     
-    def _make_serializable_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """创建可JSON序列化的上下文副本"""
-        serializable_context = {}
-        
-        for key, value in context.items():
-            try:
-                # 尝试序列化测试
-                json.dumps(value)
-                serializable_context[key] = value
-            except (TypeError, ValueError):
-                # 如果不能序列化，使用字符串表示或跳过
-                if hasattr(value, '__name__'):
-                    # 模块或函数类型
-                    serializable_context[key] = f"<{type(value).__name__}: {getattr(value, '__name__', str(value))}>"
-                elif hasattr(value, 'shape'):
-                    # 可能是numpy数组或pandas DataFrame
-                    serializable_context[key] = f"<{type(value).__name__}: shape={getattr(value, 'shape', 'unknown')}>"
-                else:
-                    # 其他类型，使用简单的字符串表示
-                    serializable_context[key] = f"<{type(value).__name__}: {str(value)[:100]}...>"
-        
-        return serializable_context
 
 class ActionAgent:
     """执行代理 - 负责执行Python代码并汇报结果"""
@@ -622,26 +592,20 @@ class KaggleMultiAgent:
                 }
                 
                 # 更新上下文（只保留可序列化的变量）
-                filtered_variables = self._filter_serializable_variables(result.variables)
-                self.context.update(filtered_variables)
-                
-                # 添加文件路径到上下文
-                self.context[f"{phase.value}_output_file"] = code_cache_path
-                self.context[f"{phase.value}_result_file"] = result_cache_path
+                self.context[phase.value] = self.phase_results[phase.value]
                 
                 return True
             
-            # 5. 代码优化
+            # 5. 代码优化 
             if iteration < max_iterations - 1:
                 print(f"    🔧 开始代码优化...")
-                print(f"    📋 错误信息: {result.error}")
-                optimized_code, is_final = self.code_agent.review_and_refine(
-                    code, result, phase
+                optimized_code= self.code_agent.review_and_refine(
+                    code, result.output
                 )
-                code = optimized_code
                 with open(code_cache_path, 'w', encoding='utf-8') as f:
-                    f.write(code)
+                    f.write(optimized_code)
                 print(f"    🔧 代码优化完成")
+                continue
         
         return False
     
@@ -672,37 +636,3 @@ class KaggleMultiAgent:
 """
         
         return report
-    
-    def _filter_serializable_variables(self, variables: Dict[str, Any]) -> Dict[str, Any]:
-        """过滤出可序列化的变量"""
-        filtered = {}
-        
-        for key, value in variables.items():
-            # 跳过模块、函数等不可序列化的对象
-            if not any([
-                hasattr(value, '__module__') and hasattr(value, '__name__'),  # 函数或类
-                str(type(value)).startswith("<class 'module'"),  # 模块
-                str(type(value)).startswith("<class 'type'"),    # 类型
-                callable(value) and not isinstance(value, type)   # 可调用对象但不是类型
-            ]):
-                try:
-                    # 测试是否可以序列化
-                    json.dumps(value, default=str)
-                    filtered[key] = value
-                except (TypeError, ValueError):
-                    # 对于复杂对象，保存其摘要信息
-                    if hasattr(value, 'shape'):
-                        filtered[key + '_info'] = f"Shape: {value.shape}"
-                    elif hasattr(value, '__len__'):
-                        try:
-                            # 确保对象支持len操作
-                            if hasattr(value, '__len__') and not isinstance(value, type):
-                                filtered[key + '_info'] = f"Length: {len(value)}"
-                            else:
-                                filtered[key + '_info'] = f"Type: {type(value).__name__}"
-                        except (TypeError, AttributeError):
-                            filtered[key + '_info'] = f"Type: {type(value).__name__}"
-                    else:
-                        filtered[key + '_info'] = f"Type: {type(value).__name__}"
-        
-        return filtered
